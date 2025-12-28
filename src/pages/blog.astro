@@ -19,7 +19,7 @@ const pageTitle = "全部档案";
 
     <div class="timeline">
       {sortedPosts.map((post) => (
-        <a href={`/posts/${post.slug}`} class="post-item">
+        <a href={`/Etherec0rD/posts/${post.slug}`} class="post-item">
           <div class="post-date">{post.data.pubDate.toISOString().slice(0,10)}</div>
           <div class="post-info">
             <h2 class="post-title">{post.data.title}</h2>
@@ -34,7 +34,7 @@ const pageTitle = "全部档案";
     </div>
     
     <div class="back-home">
-        <a href="/" class="circle-link">HOME</a>
+        <a href="/Etherec0rD/" class="circle-link">HOME</a>
     </div>
   </div>
 </BaseLayout>
