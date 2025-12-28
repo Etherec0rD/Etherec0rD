@@ -1,0 +1,105 @@
+---
+// src/layouts/PostLayout.astro
+import BaseLayout from './BaseLayout.astro';
+// 1. 引入 Astro 的类型工具
+import type { CollectionEntry } from 'astro:content';
+
+// 2. 定义 Props 接口（这是大师级开发者的习惯）
+// 我们告诉组件：你接收的 frontmatter 必须完全符合 'blog' 集合的定义
+interface Props {  frontmatter: CollectionEntry<'blog'>['data'];}
+
+// 3. Astro 会自动根据上面的 Props 接口推导类型
+const { frontmatter } = Astro.props;
+---
+
+<BaseLayout pageTitle={frontmatter.title}>
+  <article class="prose">
+    <header class="post-header">
+      <div class="meta-data">
+        <span class="date">{frontmatter.pubDate.toString().slice(0,10)}</span>
+        <span class="tags">
+            {frontmatter.tags && frontmatter.tags.map((tag) => (
+                <span class="tag">#{tag}</span>
+            ))}
+        </span>
+      </div>
+      <h1 class="title">{frontmatter.title}</h1>
+      {frontmatter.description && <p class="description">{frontmatter.description}</p>}
+      <hr class="separator"/>
+    </header>
+    
+    <div class="content-body">
+      <slot />
+    </div>
+
+    <footer class="post-footer">
+        <a href="/" class="back-link">← BACK TO HOME</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .prose {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 20px;
+    color: #333;
+    line-height: 1.8;
+  }
+
+  .meta-data {
+    font-size: 0.9rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  
+  .tag { margin-left: 10px; color: var(--art-blue); }
+
+  .title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0 0 20px 0;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  .description {
+    font-size: 1.2rem;
+    color: #666;
+    font-style: italic;
+  }
+
+  .separator {
+    border: none;
+    height: 4px;
+    background: var(--art-black);
+    width: 50px;
+    margin: 40px 0;
+  }
+
+  /* 文章正文样式优化 */
+  .content-body {
+    font-size: 1.1rem;
+  }
+  
+  /* 给 Markdown 里的元素加样式 */
+  .content-body :global(h2) { margin-top: 40px; font-size: 1.8rem; }
+  .content-body :global(p) { margin-bottom: 20px; }
+  .content-body :global(img) { max-width: 100%; border-radius: 4px; }
+  .content-body :global(blockquote) { 
+    border-left: 4px solid var(--art-red); 
+    padding-left: 20px; 
+    color: #666; 
+    margin: 20px 0;
+  }
+
+  .post-footer { margin-top: 80px; padding-top: 40px; border-top: 1px solid #eee; }
+  .back-link { 
+    text-decoration: none; color: var(--art-black); 
+    font-weight: bold; letter-spacing: 1px; 
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--art-red); }
+</style>

@@ -1,16 +1,139 @@
 ---
+// 1. 引入布局和数据获取工具
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
 
+// 2. 获取所有博客文章，并按日期排序取最新的 5 篇
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const recentPosts = sortedPosts.slice(0, 5);
+
+const siteTitle = "ETHERECORD"; // 或者你想叫 SUPREMATISM
 ---
+<BaseLayout pageTitle="首页">
+  <div class="cursor" id="cursor"></div>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+  <div class="canvas" id="canvas">
+    
+    <div class="black-square" data-speed="0.05"></div>
+    <div class="red-bar" data-speed="0.08"></div>
+    <div class="blue-circle" data-speed="0.03"></div>
+
+    <div class="title-group">
+      <h1>{siteTitle}</h1>
+      <div class="subtitle">PUBLISHER / DEV / ART</div>
+    </div>
+
+    <nav class="nav-menu">
+      {recentPosts.map((post) => (
+        <div class="menu-wrapper">
+            <a href={`/posts/${post.slug}`} class="nav-item">
+            {post.data.title}
+            </a>
+            <div class="nav-desc">{post.data.description || "无简介"}</div>
+        </div>
+      ))}
+      
+      <a href="/blog" class="nav-item archive-link"> → ARCHIVE / 全部档案</a>
+    </nav>
+
+  </div>
+</BaseLayout>
+
+<script>
+  // 3. 移植 JavaScript 逻辑
+  // Astro 的 script 标签默认打包处理，非常现代
+  const elements = document.querySelectorAll('[data-speed]');
+  const cursor = document.getElementById('cursor');
+
+  document.addEventListener('mousemove', (e) => {
+    // 计算中心点视差
+    const x = (window.innerWidth - e.pageX * 2) / 100;
+    const y = (window.innerHeight - e.pageY * 2) / 100;
+
+    elements.forEach((el) => {
+        // 断言 el 是 HTMLElement 才能访问 style (TS check)
+        const element = el as HTMLElement; 
+        const speed = parseFloat(element.getAttribute('data-speed') || "0");
+        
+        const xOffset = x * speed * 100;
+        const yOffset = y * speed * 100;
+
+        // 特殊处理红条的旋转
+        if (element.classList.contains('red-bar')) {
+            element.style.transform = `rotate(-15deg) translate(${xOffset}px, ${yOffset}px)`;
+        } else {
+            element.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+        }
+    });
+
+    // 光标跟随
+    if(cursor) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    }
+  });
+</script>
+
+<style>
+  /* 4. 移植 CSS */
+  /* 使用 define:vars 或者直接写 CSS 变量 */
+  :root {
+    --infinite-white: #f4f4f4;
+    --void-black: #111111;
+    --supreme-red: #D22630;
+    --dynamic-yellow: #FFC40C;
+    --static-blue: #234E96;
+  }
+
+  /* 你的纸张噪音背景 */
+  .canvas {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--infinite-white);
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  }
+
+  /* 几何体样式 */
+  .black-square { position: absolute; top: 15%; left: 10%; width: 30vw; height: 30vw; max-width: 400px; background-color: var(--void-black); z-index: 1; transition: transform 0.1s ease-out; }
+  .red-bar { position: absolute; top: 45%; right: 15%; width: 40vw; height: 20px; background-color: var(--supreme-red); transform: rotate(-15deg); z-index: 2; }
+  .blue-circle { position: absolute; bottom: 15%; left: 25%; width: 100px; height: 100px; border-radius: 50%; background-color: var(--static-blue); z-index: 3; mix-blend-mode: multiply; }
+
+  /* 文字组 */
+  .title-group { position: absolute; top: 25%; left: 12%; z-index: 10; mix-blend-mode: difference; color: white; pointer-events: none; }
+  h1 { font-size: 6vw; font-weight: 900; line-height: 0.9; text-transform: uppercase; margin: 0; }
+  .subtitle { letter-spacing: 5px; font-weight: 300; margin-top: 10px; }
+
+  /* 导航菜单 */
+  .nav-menu { position: absolute; bottom: 10%; right: 10%; display: flex; flex-direction: column; align-items: flex-end; gap: 25px; z-index: 20; }
+  
+  .menu-wrapper { display: flex; flex-direction: column; align-items: flex-end; position: relative; }
+
+  .nav-item { font-size: 1.8rem; font-weight: 700; text-transform: uppercase; color: var(--void-black); text-decoration: none; position: relative; transition: all 0.3s ease; }
+  .nav-item:hover { color: var(--infinite-white); padding-right: 15px; }
+  
+  /* 那个很酷的红色背景动效 */
+  .nav-item::before { content: ''; position: absolute; top: 50%; right: -20px; transform: translateY(-50%); width: 0; height: 110%; background-color: var(--supreme-red); z-index: -1; transition: width 0.3s ease; }
+  .nav-item:hover::before { width: 120%; }
+
+  .nav-desc { font-size: 0.8rem; font-weight: 300; color: #666; margin-top: 5px; opacity: 0; transform: translateX(20px); transition: all 0.3s ease; text-align: right; }
+  .menu-wrapper:hover .nav-desc { opacity: 1; transform: translateX(0); }
+
+  .archive-link { margin-top: 20px; font-size: 1rem; }
+
+  /* 自定义光标 */
+  .cursor { position: fixed; top: 0; left: 0; width: 24px; height: 24px; border: 2px solid var(--void-black); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background-color 0.2s; }
+
+  /* 细线 */
+  .canvas::after {
+    content: '';
+    position: absolute; top: 55%; left: -10%; width: 120%; height: 1px;
+    background-color: rgba(17, 17, 17, 0.1);
+    transform: rotate(2deg); z-index: 0; pointer-events: none;
+  }
+</style>

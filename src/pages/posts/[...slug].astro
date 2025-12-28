@@ -1,0 +1,23 @@
+---
+// src/pages/posts/[...slug].astro
+import { getCollection } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+// 1. 告诉 Astro 我们有哪些文章需要生成页面
+// getStaticPaths 是 Astro 生成静态网站的核心函数
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+  return blogEntries.map(entry => ({
+    params: { slug: entry.slug }, props: { entry },
+  }));
+}
+
+// 2. 获取当前页面的文章数据
+const { entry } = Astro.props;
+// 3. 把 Markdown 渲染成 HTML 组件
+const { Content } = await entry.render();
+---
+
+<PostLayout frontmatter={entry.data}>
+  <Content />
+</PostLayout>

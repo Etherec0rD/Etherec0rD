@@ -1,0 +1,33 @@
+---
+// src/layouts/BaseLayout.astro
+const { pageTitle } = Astro.props;
+---
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle} | ETHERECORD</title>
+    <style is:global>
+      /* 全局重置：消除浏览器的默认边距，让艺术填满屏幕 */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f4f4; /* 稍微带点灰度的白，更有质感 */
+        overflow-x: hidden; /* 防止红线条伸出屏幕导致横向滚动条 */
+      }
+      
+      /* 定义你的至上主义配色 */
+      :root {
+        --art-black: #0d0d0d;
+        --art-red: #D12323;
+        --art-blue: #1A468C;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

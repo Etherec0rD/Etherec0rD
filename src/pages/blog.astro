@@ -1,0 +1,156 @@
+---
+// src/pages/blog.astro
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// 获取所有文章并按日期排序
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const pageTitle = "全部档案";
+---
+
+<BaseLayout pageTitle={pageTitle}>
+  <div class="archive-container">
+    <header class="archive-header">
+      <h1 class="glitch-title">ARCHIVE_</h1>
+      <p class="subtitle">共收录 {allPosts.length} 篇独立游戏发行笔记</p>
+    </header>
+
+    <div class="timeline">
+      {sortedPosts.map((post) => (
+        <a href={`/posts/${post.slug}`} class="post-item">
+          <div class="post-date">{post.data.pubDate.toISOString().slice(0,10)}</div>
+          <div class="post-info">
+            <h2 class="post-title">{post.data.title}</h2>
+            {post.data.description && <p class="post-desc">{post.data.description}</p>}
+            <div class="tags">
+               {post.data.tags?.map(tag => <span>#{tag}</span>)} 
+            </div>
+          </div>
+          <div class="arrow">→</div>
+        </a>
+      ))}
+    </div>
+    
+    <div class="back-home">
+        <a href="/" class="circle-link">HOME</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .archive-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 100px 20px;
+  }
+
+  /* 头部设计 */
+  .archive-header {
+    margin-bottom: 80px;
+    border-bottom: 4px solid var(--art-black);
+    padding-bottom: 20px;
+  }
+
+  .glitch-title {
+    font-size: 5rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -2px;
+    /* 一点点故障艺术效果 */
+    text-shadow: 2px 2px 0px var(--art-red);
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: 10px;
+    font-family: monospace;
+  }
+
+  /* 列表设计 */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* 紧凑排列 */
+  }
+
+  .post-item {
+    display: flex;
+    align-items: baseline;
+    text-decoration: none;
+    padding: 30px 0;
+    border-bottom: 1px solid #ddd;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    color: var(--art-black);
+  }
+
+  /* 悬停时的交互：变成黑底白字 */
+  .post-item:hover {
+    background: var(--art-black);
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-bottom: 1px solid var(--art-black);
+  }
+
+  .post-item:hover .post-desc { color: #aaa; }
+  .post-item:hover .arrow { transform: translateX(10px); }
+
+  .post-date {
+    font-family: monospace;
+    font-size: 1rem;
+    width: 120px;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .post-info {
+    flex-grow: 1;
+  }
+
+  .post-title {
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .post-desc {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 5px 0 0 0;
+    max-width: 500px;
+  }
+
+  .tags {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    opacity: 0.5;
+  }
+  .tags span { margin-right: 10px; }
+
+  .arrow {
+    font-size: 2rem;
+    font-weight: 100;
+    opacity: 0; /* 默认隐藏箭头 */
+    transition: all 0.3s;
+  }
+  .post-item:hover .arrow { opacity: 1; }
+
+  /* 底部返回按钮 */
+  .back-home { margin-top: 100px; display: flex; justify-content: center; }
+  .circle-link {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--art-red);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+  }
+  .circle-link:hover { transform: scale(1.1); }
+</style>
