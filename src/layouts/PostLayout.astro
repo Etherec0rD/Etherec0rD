@@ -1,30 +1,43 @@
 ---
 // src/layouts/PostLayout.astro
 import BaseLayout from './BaseLayout.astro';
-// 1. 引入 Astro 的类型工具
 import type { CollectionEntry } from 'astro:content';
 
-// 2. 定义 Props 接口（这是大师级开发者的习惯）
-// 我们告诉组件：你接收的 frontmatter 必须完全符合 'blog' 集合的定义
-interface Props {  frontmatter: CollectionEntry<'blog'>['data'];}
+interface Props {
+  frontmatter: CollectionEntry<'blog'>['data'];
+}
 
-// 3. Astro 会自动根据上面的 Props 接口推导类型
 const { frontmatter } = Astro.props;
 ---
 
 <BaseLayout pageTitle={frontmatter.title}>
-  <article class="prose">
+  <div class="texture-overlay"></div>
+
+  <div class="geometric-shapes">
+      <div class="red-line-decoration"></div>
+      <div class="black-square-decoration"></div>
+      <div class="blue-circle-decoration"></div>
+  </div>
+
+  <article class="prose-container">
     <header class="post-header">
       <div class="meta-data">
-        <span class="date">{frontmatter.pubDate.toString().slice(0,10)}</span>
-        <span class="tags">
+        <span class="date">DATE: {frontmatter.pubDate.toString().slice(0,10)}</span>
+        <div class="tags">
             {frontmatter.tags && frontmatter.tags.map((tag) => (
-                <span class="tag">#{tag}</span>
+                <span class="tag">#{tag.toUpperCase()}</span>
             ))}
-        </span>
+        </div>
       </div>
+
       <h1 class="title">{frontmatter.title}</h1>
-      {frontmatter.description && <p class="description">{frontmatter.description}</p>}
+      
+      {frontmatter.description && 
+        <div class="description-box">
+            <p class="description">{frontmatter.description}</p>
+        </div>
+      }
+      
       <hr class="separator"/>
     </header>
     
@@ -33,73 +46,211 @@ const { frontmatter } = Astro.props;
     </div>
 
     <footer class="post-footer">
-        <a href="/Etherec0rD/" class="back-link">← BACK TO HOME</a>
+        <a href="/Etherec0rD/blog" class="back-link">
+            <span class="arrow">←</span> ARCHIVE
+        </a>
     </footer>
   </article>
 </BaseLayout>
 
 <style>
-  .prose {
-    max-width: 720px;
+  /* === 1. 背景纹理 === */
+  .texture-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* === 2. 几何装饰 (固定在屏幕上，滚动时有视差感) === */
+  .geometric-shapes {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* 右上角的红色斜杠 */
+  .red-line-decoration {
+    position: absolute;
+    top: -50px; right: -100px;
+    width: 400px; height: 30px;
+    background: var(--art-red);
+    transform: rotate(45deg);
+    opacity: 0.8;
+  }
+
+  /* 左侧的黑色方块锚点 */
+  .black-square-decoration {
+    position: absolute;
+    top: 20%; left: 2%;
+    width: 40px; height: 40px;
+    background: var(--art-black);
+  }
+
+  /* 底部的大圆点 */
+  .blue-circle-decoration {
+    position: absolute;
+    bottom: 5%; right: 5%;
+    width: 150px; height: 150px;
+    background: var(--art-blue);
+    border-radius: 50%;
+    opacity: 0.1; /* 淡淡的，不要干扰阅读 */
+  }
+
+  /* === 3. 布局与排版 === */
+  .prose-container {
+    position: relative;
+    z-index: 1; /* 确保文字在几何体上面 */
+    max-width: 760px;
     margin: 0 auto;
-    padding: 80px 20px;
-    color: #333;
-    line-height: 1.8;
+    padding: 100px 20px 160px;
+    background: transparent;
   }
 
   .meta-data {
+    font-family: monospace;
     font-size: 0.9rem;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 20px;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    border-top: 2px solid var(--art-black);
+    padding-top: 10px;
+    margin-bottom: 30px;
   }
-  
-  .tag { margin-left: 10px; color: var(--art-blue); }
 
+  .tag { color: var(--art-red); font-weight: bold; margin-left: 10px; }
+
+  /* 标题风格：至上主义的核心 */
   .title {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 900;
-    margin: 0 0 20px 0;
     line-height: 1.1;
-    letter-spacing: -1px;
+    margin: 0 0 30px 0;
+    color: var(--art-black);
+    letter-spacing: -2px;
+    /* 标题左侧加一个红条装饰 */
+    border-left: 12px solid var(--art-red);
+    padding-left: 20px;
+    margin-left: -32px; /* 让红条伸出去一点 */
   }
 
+  /* 简介框 */
+  .description-box {
+    background: #e5e5e5;
+    padding: 20px;
+    margin-bottom: 40px;
+    border-left: 4px solid var(--art-black);
+  }
   .description {
     font-size: 1.2rem;
-    color: #666;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
     font-style: italic;
   }
 
   .separator {
     border: none;
-    height: 4px;
+    height: 8px; /* 很粗的黑线 */
     background: var(--art-black);
-    width: 50px;
-    margin: 40px 0;
+    width: 100px;
+    margin: 60px 0;
   }
 
-  /* 文章正文样式优化 */
+  /* === 正文排版优化 === */
   .content-body {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: #222;
+  }
+
+  /* 让 Markdown 里的元素也带有风格 */
+  .content-body :global(h2) {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-top: 60px;
+    margin-bottom: 20px;
+    display: inline-block;
+    background: var(--art-black);
+    color: white;
+    padding: 5px 15px;
+    transform: rotate(-1deg); /* 稍微歪一点，更有动感 */
+  }
+
+  .content-body :global(h3) {
+    font-size: 1.5rem;
+    color: var(--art-blue);
+    margin-top: 40px;
+    border-bottom: 2px solid var(--art-blue);
+    display: inline-block;
+  }
+
+  .content-body :global(p) { margin-bottom: 25px; }
+  
+  .content-body :global(strong) {
+    color: var(--art-red); /* 加粗文字变红 */
+  }
+
+  .content-body :global(blockquote) {
+    font-family: serif;
+    font-size: 1.4rem;
+    color: #555;
+    border-left: none;
+    position: relative;
+    padding: 20px 40px;
+    background: rgba(255,255,255,0.5);
+  }
+  /* 引用号装饰 */
+  .content-body :global(blockquote)::before {
+    content: '“';
+    position: absolute; left: 0; top: -20px;
+    font-size: 6rem; color: rgba(0,0,0,0.1);
+    font-family: serif;
+  }
+
+  .content-body :global(img) {
+    width: 100%;
+    border: 4px solid var(--art-black); /* 图片加黑框 */
+    box-shadow: 10px 10px 0px rgba(0,0,0,0.2); /* 硬阴影 */
+    margin: 30px 0;
+  }
+
+  /* === 底部按钮 === */
+  .post-footer {
+    margin-top: 100px;
+    border-top: 1px solid #ccc;
+    padding-top: 50px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .back-link {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--art-black);
+    text-decoration: none;
+    border: 4px solid var(--art-black);
+    padding: 15px 40px;
+    transition: all 0.2s;
+    background: white;
+  }
+
+  .back-link:hover {
+    background: var(--art-red);
+    color: white;
+    border-color: var(--art-red);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(210, 38, 48, 0.3);
   }
   
-  /* 给 Markdown 里的元素加样式 */
-  .content-body :global(h2) { margin-top: 40px; font-size: 1.8rem; }
-  .content-body :global(p) { margin-bottom: 20px; }
-  .content-body :global(img) { max-width: 100%; border-radius: 4px; }
-  .content-body :global(blockquote) { 
-    border-left: 4px solid var(--art-red); 
-    padding-left: 20px; 
-    color: #666; 
-    margin: 20px 0;
+  /* 移动端适配微调 */
+  @media (max-width: 768px) {
+    .title { font-size: 2.5rem; border-left-width: 8px; margin-left: -20px; }
+    .geometric-shapes { opacity: 0.5; } /* 手机上淡化背景几何体以免干扰 */
+    .prose-container { padding-top: 60px; }
   }
-
-  .post-footer { margin-top: 80px; padding-top: 40px; border-top: 1px solid #eee; }
-  .back-link { 
-    text-decoration: none; color: var(--art-black); 
-    font-weight: bold; letter-spacing: 1px; 
-    transition: color 0.2s;
-  }
-  .back-link:hover { color: var(--art-red); }
 </style>
